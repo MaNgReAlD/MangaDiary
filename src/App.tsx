@@ -12,6 +12,7 @@ function App() {
 
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("mangaList", JSON.stringify(mangaList));
@@ -59,9 +60,24 @@ function App() {
             <option key={r} value={r}>{r}</option>
           ))}
         </select>
+
+        <button onClick={() => setIsModalOpen(true)}>Добавить мангу</button>
       </div>
 
-      <MangaForm onSubmit={handleAddManga} />
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <MangaForm
+              onSubmit={(manga) => {
+                handleAddManga(manga);
+                setIsModalOpen(false);
+              }}
+            />
+            <button onClick={() => setIsModalOpen(false)}>Закрыть</button>
+          </div>
+        </div>
+      )}
+
       <MangaList
         mangaList={filteredList}
         onDelete={handleDeleteManga}

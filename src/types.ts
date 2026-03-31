@@ -5,5 +5,5 @@ export interface Manga {
   finishedAt: string;
   rating: number;
   note?: string;
-  imageUrl?: string; // вот это поле нужно
+  imageUrl?: string; 
 }
