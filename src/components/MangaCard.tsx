@@ -37,7 +37,7 @@ export default function MangaCard({ manga, onDelete, onUpdate }: Props) {
           <input value={author} onChange={e => setAuthor(e.target.value)} />
           <input type="date" value={finishedAt} onChange={e => setFinishedAt(e.target.value)} />
           <select value={rating} onChange={e => setRating(Number(e.target.value))}>
-            {[1,2,3,4,5].map(r => <option key={r} value={r}>{r}</option>)}
+            {[1,2,3,4,5,6,7,8,9,10].map(r => <option key={r} value={r}>{r}</option>)}
           </select>
           <textarea value={note} onChange={e => setNote(e.target.value)} />
           <input
