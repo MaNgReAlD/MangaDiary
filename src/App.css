@@ -1,0 +1,175 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-image: url("./assets/1663304514_1-newphoto-club-p-manga-dlya-raspechatki-na-stenu-1.png"); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+}
+
+.app {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px; 
+  background: rgba(255, 255, 255, 0.85); 
+  color: #111;
+  text-align: center;
+  border: 3px solid #000;
+}
+
+h1 {
+  font-size: 35px; 
+  color: #000;
+  border-bottom: 3px solid #000;
+  padding-bottom: 8px; 
+  margin-bottom: 16px; 
+}
+
+.manga-form,
+.manga-card {
+  margin: 16px auto;
+  padding: 16px; 
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  max-width: 500px;
+  text-align: left;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px; 
+  margin: 5px 0; 
+  border: 2px solid #000;
+  border-radius: 4px;
+  background: #fff;
+  color: #000;
+  font-family: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #000;
+  box-shadow: 2px 2px #000;
+}
+
+textarea {
+  min-height: 128px; 
+  resize: vertical;
+}
+
+button {
+  margin: 8px 5px; 
+  padding: 8px 16px; 
+  border: 2px solid #000;
+  border-radius: 4px;
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: #000;
+  color: #fff;
+}
+
+.error {
+  color: #d00;
+  font-weight: bold;
+}
+
+.stats {
+  margin: 16px auto; 
+  padding: 8px; 
+  border: 2px dashed #000;
+  background: #fafafa;
+  max-width: 400px;
+  text-align: center;
+  font-style: italic;
+}
+
+.manga-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+}
+
+.manga-card {
+  width: 100%;
+  max-width: 500px; 
+  margin: 16px auto;
+  padding: 16px;
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.card-text {
+  flex: 1;
+  margin-right: 16px; 
+}
+
+.card-image {
+  width: 150px; 
+  flex-shrink: 0;
+}
+
+.card-image img {
+  width: 100%;
+  height: auto;
+  border: 2px solid #000;
+  border-radius: 4px;
+}
+
+.controls {
+  display: flex;
+  gap: 16px; 
+  margin-bottom: 16px; 
+  justify-content: center;
+}
+
+.controls input,
+.controls select {
+  padding: 8px; 
+  border: 2px solid #000;
+  border-radius: 4px;
+  background: #fff;
+  color: #000;
+  font-family: inherit;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 500px;
+  width: 100%;
+}
