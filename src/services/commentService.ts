@@ -8,10 +8,7 @@ export async function getComments(mangaId: string): Promise<Comment[]> {
   return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Comment));
 }
 
-export async function addComment(
-  mangaId: string,
-  comment: Omit<Comment, "id" | "mangaId">
-) {
+export async function addComment(mangaId: string, comment: Omit<Comment, "id" | "mangaId">) {
   const commentsCollection = collection(dbFirestore, "manga", mangaId, "comments");
   await addDoc(commentsCollection, comment);
 }
