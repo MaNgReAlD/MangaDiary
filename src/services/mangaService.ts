@@ -1,8 +1,8 @@
-import { db } from "../firebase";
-import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { dbFirestore } from "../firebase";
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import type { Manga } from "../types";
 
-const mangaCollection = collection(db, "manga");
+const mangaCollection = collection(dbFirestore, "manga");
 
 export async function getMangaList(): Promise<Manga[]> {
   const snapshot = await getDocs(mangaCollection);
@@ -14,5 +14,11 @@ export async function addManga(manga: Omit<Manga, "id">): Promise<void> {
 }
 
 export async function deleteManga(id: string): Promise<void> {
-  await deleteDoc(doc(db, "manga", id));
+  await deleteDoc(doc(dbFirestore, "manga", id));
+}
+
+export async function updateManga(manga: Manga): Promise<void> {
+  const { id, ...data } = manga; 
+  const mangaRef = doc(dbFirestore, "manga", id);
+  await updateDoc(mangaRef, data);
 }

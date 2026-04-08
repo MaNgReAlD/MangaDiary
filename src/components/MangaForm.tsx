@@ -1,77 +1,45 @@
 import { useState } from "react";
 import type { Manga } from "../types";
-import { v4 as uuidv4 } from "uuid";
 
 interface Props {
   onSubmit: (manga: Manga) => void;
+  onCancel?: () => void;
+  initialData?: Manga;
 }
 
-export default function MangaForm({ onSubmit }: Props) {
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [finishedAt, setFinishedAt] = useState("");
-  const [rating, setRating] = useState(3);
-  const [note, setNote] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [error, setError] = useState("");
+export default function MangaForm({ onSubmit, onCancel, initialData }: Props) {
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [author, setAuthor] = useState(initialData?.author || "");
+  const [rating, setRating] = useState(initialData?.rating || 0);
+  const [note, setNote] = useState(initialData?.note || "");
+  const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || "");
+  const [finishedAt, setFinishedAt] = useState(initialData?.finishedAt || "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !author.trim() || !finishedAt) {
-      setError("Все обязательные поля должны быть заполнены");
-      return;
-    }
-
     const manga: Manga = {
-      id: uuidv4(),
-      title: title.trim(),
-      author: author.trim(),
-      finishedAt,
+      id: initialData?.id || crypto.randomUUID(),
+      title,
+      author,
       rating,
-      note: note.trim(),
-      imageUrl: imageUrl.trim()
+      note,
+      imageUrl,
+      finishedAt
     };
-
     onSubmit(manga);
-    setTitle(""); setAuthor(""); setFinishedAt("");
-    setRating(3); setNote(""); setImageUrl(""); setError("");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="manga-form">
-      <input
-        type="text"
-        placeholder="Название манги"
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Мангака"
-        value={author}
-        onChange={e => setAuthor(e.target.value)}
-      />
-      <input
-        type="date"
-        value={finishedAt}
-        onChange={e => setFinishedAt(e.target.value)}
-      />
-      <select value={rating} onChange={e => setRating(Number(e.target.value))}>
-        {[1,2,3,4,5,6,7,8,9,10].map(r => <option key={r} value={r}>{r}</option>)}
-      </select>
-      <textarea
-        placeholder="Заметка"
-        value={note}
-        onChange={e => setNote(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Ссылка на изображение"
-        value={imageUrl}
-        onChange={e => setImageUrl(e.target.value)}
-      />
-      {error && <p className="error">{error}</p>}
-      <button type="submit">Добавить</button>
+    <form className="manga-form" onSubmit={handleSubmit}>
+      <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Название манги" required />
+      <input value={author} onChange={e => setAuthor(e.target.value)} placeholder="Автор" required />
+      <input type="number" value={rating} onChange={e => setRating(Number(e.target.value))} placeholder="Оценка" min="0" max="10" />
+      <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Заметки" />
+      <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Ссылка на картинку" />
+      <input type="date" value={finishedAt} onChange={e => setFinishedAt(e.target.value)} />
+
+      <button type="submit">{initialData ? "Сохранить" : "Добавить"}</button>
+      {onCancel && <button type="button" onClick={onCancel}>Отмена</button>}
     </form>
   );
 }

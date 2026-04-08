@@ -1,98 +1,109 @@
-import { useState, useEffect } from "react";
-import type { Manga } from "./types";
-import MangaForm from "./components/MangaForm";
+import { useEffect, useState } from "react";
+import { getMangaList, addManga, deleteManga, updateManga } from "./services/mangaService";
 import MangaList from "./components/MangaList";
-import { getMangaList, addManga, deleteManga } from "./services/mangaService";
+import MangaForm from "./components/MangaForm";
+import type { Manga } from "./types";
 import "./App.css";
 
-function App() {
+export default function App() {
   const [mangaList, setMangaList] = useState<Manga[]>([]);
-  const [filterRating, setFilterRating] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingManga, setEditingManga] = useState<Manga | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [ratingFilter, setRatingFilter] = useState<number | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
-      const data = await getMangaList();
-      console.log("Данные из Firestore:", data);
-      setMangaList(data);
+      const list = await getMangaList();
+      setMangaList(list);
     }
     fetchData();
   }, []);
 
-  const handleAddManga = async (manga: Manga) => {
-    await addManga({
-      title: manga.title,
-      author: manga.author,
-      rating: Number(manga.rating),
-      note: manga.note,
-      imageUrl: manga.imageUrl,
-      finishedAt: manga.finishedAt
-    });
-    const data = await getMangaList();
-    setMangaList(data);
-    setIsModalOpen(false);
+  const handleAdd = async (manga: Manga) => {
+    await addManga(manga);
+    const list = await getMangaList();
+    setMangaList(list);
+    setShowForm(false);
   };
 
-  const handleUpdateManga = (updated: Manga) => {
-    setMangaList(prev => prev.map(m => (m.id === updated.id ? updated : m)));
-  };
-
-  const handleDeleteManga = async (id: string) => {
+  const handleDelete = async (id: string) => {
     await deleteManga(id);
-    setMangaList(prev => prev.filter(m => m.id !== id));
+    const list = await getMangaList();
+    setMangaList(list);
   };
 
-  const filteredList = mangaList.filter(m => {
-    const matchesRating = filterRating ? m.rating === filterRating : true;
-    const matchesSearch = m.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesRating && matchesSearch;
-  });
+  const handleUpdate = (manga: Manga) => {
+    setEditingManga(manga);
+  };
+
+  const filteredList = mangaList.filter(m =>
+    m.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    (ratingFilter ? m.rating === ratingFilter : true)
+  );
 
   return (
     <div className="app">
-      <h1>Манга‑дневник (Firebase)</h1>
+      <h1>Манга-дневник (Firebase)</h1>
 
+      {/* Панель управления */}
       <div className="controls">
         <input
           type="text"
           placeholder="Поиск по названию"
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
         />
-
         <select
-          value={filterRating ?? ""}
-          onChange={e => {
-            const val = e.target.value;
-            setFilterRating(val ? Number(val) : null);
-          }}
+          value={ratingFilter ?? ""}
+          onChange={e => setRatingFilter(e.target.value ? Number(e.target.value) : null)}
         >
           <option value="">Все оценки</option>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(r => (
-            <option key={r} value={r}>{r}</option>
+          {[...Array(11).keys()].map(r => (
+            <option key={r} value={r}>{r}⭐</option>
           ))}
         </select>
-
-        <button onClick={() => setIsModalOpen(true)}>Добавить мангу</button>
+        <button onClick={() => setShowForm(true)}>Добавить мангу</button>
       </div>
 
-      {isModalOpen && (
+      {/* Список манги */}
+      <MangaList
+        mangaList={filteredList}
+        onDelete={handleDelete}
+        onUpdate={handleUpdate}
+      />
+
+      {/* Модальное окно добавления */}
+      {showForm && (
         <div className="modal-overlay">
           <div className="modal">
-            <MangaForm onSubmit={handleAddManga} />
-            <button onClick={() => setIsModalOpen(false)}>Закрыть</button>
+            <h2>Добавить мангу</h2>
+            <MangaForm
+              onSubmit={handleAdd}
+              onCancel={() => setShowForm(false)}
+            />
           </div>
         </div>
       )}
 
-      <MangaList
-        mangaList={filteredList}
-        onDelete={handleDeleteManga}
-        onUpdate={handleUpdateManga}
-      />
+      {/* Модальное окно редактирования */}
+      {editingManga && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2>Редактировать мангу</h2>
+            <MangaForm
+              initialData={editingManga}
+              onSubmit={async (updated) => {
+                await updateManga(updated);
+                const list = await getMangaList();
+                setMangaList(list);
+                setEditingManga(null);
+              }}
+              onCancel={() => setEditingManga(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-export default App;
