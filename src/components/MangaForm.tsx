@@ -1,45 +1,79 @@
 import { useState } from "react";
+import { dbRealtime } from "../firebase";
+import { ref, push, set } from "firebase/database";
 import type { Manga } from "../types";
+import { useNavigate } from "react-router-dom";
+import "../styles/MangaForm.css";
 
-interface Props {
-  onSubmit: (manga: Manga) => void;
-  onCancel?: () => void;
-  initialData?: Manga;
-}
+export default function MangaForm() {
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [finishedAt, setFinishedAt] = useState("");
+  const [rating, setRating] = useState(5);
+  const [note, setNote] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
-export default function MangaForm({ onSubmit, onCancel, initialData }: Props) {
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [author, setAuthor] = useState(initialData?.author || "");
-  const [rating, setRating] = useState(initialData?.rating || 0);
-  const [note, setNote] = useState(initialData?.note || "");
-  const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || "");
-  const [finishedAt, setFinishedAt] = useState(initialData?.finishedAt || "");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const manga: Manga = {
-      id: initialData?.id || crypto.randomUUID(),
-      title,
-      author,
+    if (!title.trim() || !author.trim()) return;
+
+    const newRef = push(ref(dbRealtime, "mangas"));
+    const newManga: Omit<Manga, "id"> = {
+      title: title.trim(),
+      author: author.trim(),
+      finishedAt,
       rating,
-      note,
-      imageUrl,
-      finishedAt
+      note: note.trim(),
+      imageUrl: imageUrl.trim(),
     };
-    onSubmit(manga);
+
+    await set(newRef, newManga);
+
+    // ✅ теперь перекидывает на главную
+    navigate("/");
   };
 
   return (
     <form className="manga-form" onSubmit={handleSubmit}>
-      <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Название манги" required />
-      <input value={author} onChange={e => setAuthor(e.target.value)} placeholder="Автор" required />
-      <input type="number" value={rating} onChange={e => setRating(Number(e.target.value))} placeholder="Оценка" min="0" max="10" />
-      <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Заметки" />
-      <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Ссылка на картинку" />
-      <input type="date" value={finishedAt} onChange={e => setFinishedAt(e.target.value)} />
-
-      <button type="submit">{initialData ? "Сохранить" : "Добавить"}</button>
-      {onCancel && <button type="button" onClick={onCancel}>Отмена</button>}
+      <input
+        type="text"
+        placeholder="Название"
+        value={title}
+        onChange={e => setTitle(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Автор"
+        value={author}
+        onChange={e => setAuthor(e.target.value)}
+      />
+      <input
+        type="date"
+        value={finishedAt}
+        onChange={e => setFinishedAt(e.target.value)}
+      />
+      <select
+        value={rating}
+        onChange={e => setRating(Number(e.target.value))}
+      >
+        {[1,2,3,4,5,6,7,8,9,10].map(r => (
+          <option key={r} value={r}>{r}</option>
+        ))}
+      </select>
+      <textarea
+        placeholder="Заметка"
+        value={note}
+        onChange={e => setNote(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Ссылка на изображение"
+        value={imageUrl}
+        onChange={e => setImageUrl(e.target.value)}
+      />
+      <button type="submit">Добавить</button>
     </form>
   );
 }

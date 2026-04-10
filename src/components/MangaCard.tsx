@@ -1,5 +1,7 @@
 import { useState } from "react";
 import type { Manga } from "../types";
+import CommentList from "./CommentList";
+import "../styles/MangaCard.css"; 
 
 interface Props {
   manga: Manga;
@@ -15,6 +17,7 @@ export default function MangaCard({ manga, onDelete, onUpdate }: Props) {
   const [rating, setRating] = useState(manga.rating);
   const [note, setNote] = useState(manga.note || "");
   const [imageUrl, setImageUrl] = useState(manga.imageUrl || "");
+  const [showComments, setShowComments] = useState(false);
 
   const handleSave = () => {
     onUpdate({
@@ -24,13 +27,13 @@ export default function MangaCard({ manga, onDelete, onUpdate }: Props) {
       finishedAt,
       rating,
       note: note.trim(),
-      imageUrl: imageUrl.trim()
+      imageUrl: imageUrl.trim(),
     });
     setIsEditing(false);
   };
 
   return (
-    <div className="manga-card">
+    <div className={`manga-card ${isEditing ? "editing" : ""}`}>
       {isEditing ? (
         <>
           <input value={title} onChange={e => setTitle(e.target.value)} />
@@ -40,14 +43,11 @@ export default function MangaCard({ manga, onDelete, onUpdate }: Props) {
             {[1,2,3,4,5,6,7,8,9,10].map(r => <option key={r} value={r}>{r}</option>)}
           </select>
           <textarea value={note} onChange={e => setNote(e.target.value)} />
-          <input
-            type="text"
-            placeholder="Ссылка на изображение"
-            value={imageUrl}
-            onChange={e => setImageUrl(e.target.value)}
-          />
-          <button onClick={handleSave}>Сохранить</button>
-          <button onClick={() => setIsEditing(false)}>Отмена</button>
+          <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} />
+          <div className="card-actions">
+            <button onClick={handleSave}>Сохранить</button>
+            <button onClick={() => setIsEditing(false)}>Отмена</button>
+          </div>
         </>
       ) : (
         <div className="card-content">
@@ -57,8 +57,13 @@ export default function MangaCard({ manga, onDelete, onUpdate }: Props) {
             <p>Дата окончания: {manga.finishedAt}</p>
             <p>Оценка: {manga.rating}⭐</p>
             <p>{manga.note || "Без заметки"}</p>
-            <button onClick={() => setIsEditing(true)}>Редактировать</button>
-            <button onClick={onDelete}>Удалить</button>
+            <div className="card-actions">
+              <button onClick={() => setIsEditing(true)}>Редактировать</button>
+              <button onClick={onDelete}>Удалить</button>
+              <button onClick={() => setShowComments(prev => !prev)}>
+                {showComments ? "Скрыть комментарии" : "Показать комментарии"}
+              </button>
+            </div>
           </div>
           {manga.imageUrl && (
             <div className="card-image">
@@ -67,6 +72,7 @@ export default function MangaCard({ manga, onDelete, onUpdate }: Props) {
           )}
         </div>
       )}
+      {showComments && <CommentList mangaId={manga.id!} />}
     </div>
   );
 }

@@ -1,48 +1,73 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { dbRealtime } from "../firebase";
+import { ref, onValue, remove, update } from "firebase/database";
+import MangaCard from "./MangaCard";
 import type { Manga } from "../types";
-import CommentList from "./CommentList";
+import "../styles/App.css";
 
 interface Props {
-  mangaList: Manga[];
-  onDelete: (id: string) => void;
-  onUpdate: (manga: Manga) => void;
+  search: string;
+  sortBy: "title" | "rating" | "finishedAt";
 }
 
-export default function MangaList({ mangaList, onDelete, onUpdate }: Props) {
-  const [openComments, setOpenComments] = useState<string | null>(null);
+export default function MangaList({ search, sortBy }: Props) {
+  const [mangas, setMangas] = useState<Manga[]>([]);
+
+  useEffect(() => {
+    const mangasRef = ref(dbRealtime, "mangas");
+    const unsubscribe = onValue(mangasRef, snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.entries(data).map(([id, value]) => ({
+          id,
+          ...(value as Omit<Manga, "id">),
+        }));
+        setMangas(list);
+      } else {
+        setMangas([]);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    const mangaRef = ref(dbRealtime, `mangas/${id}`);
+    await remove(mangaRef);
+  };
+
+  const handleUpdate = async (manga: Manga) => {
+    const mangaRef = ref(dbRealtime, `mangas/${manga.id}`);
+    await update(mangaRef, {
+      title: manga.title,
+      author: manga.author,
+      finishedAt: manga.finishedAt,
+      rating: manga.rating,
+      note: manga.note,
+      imageUrl: manga.imageUrl,
+    });
+  };
+
+  const filtered = mangas
+    .filter(m => m.title.toLowerCase().includes(search.toLowerCase()))
+  
+    .sort((a, b) => {
+      if (sortBy === "title") return a.title.localeCompare(b.title);
+      if (sortBy === "rating") return b.rating - a.rating;
+      if (sortBy === "finishedAt") {
+        return new Date(b.finishedAt).getTime() - new Date(a.finishedAt).getTime();
+      }
+      return 0;
+    });
 
   return (
     <div className="manga-list">
-      {mangaList.map(manga => (
-        <div key={manga.id} className="manga-card">
-          <div className="card-content">
-            <div className="card-text">
-              <h2>{manga.title}</h2>
-              <p><b>Мангака:</b> {manga.author}</p>
-              {manga.finishedAt && <p><b>Дата окончания:</b> {manga.finishedAt}</p>}
-              <p><b>Оценка:</b> {manga.rating}⭐</p>
-              {manga.note && <p>{manga.note}</p>}
-            </div>
-            {manga.imageUrl && (
-              <div className="card-image">
-                <img src={manga.imageUrl} alt={manga.title} />
-              </div>
-            )}
-          </div>
-
-          <div className="card-actions">
-            <button onClick={() => onUpdate(manga)}>Редактировать</button>
-            <button onClick={() => onDelete(manga.id)}>Удалить</button>
-            <button
-              className="comment"
-              onClick={() => setOpenComments(openComments === manga.id ? null : manga.id)}
-            >
-              {openComments === manga.id ? "Скрыть комментарии" : "Комментарии"}
-            </button>
-          </div>
-
-          {openComments === manga.id && <CommentList mangaId={manga.id} />}
-        </div>
+      {filtered.map(manga => (
+        <MangaCard
+          key={manga.id}
+          manga={manga}
+          onDelete={() => handleDelete(manga.id!)}
+          onUpdate={handleUpdate}
+        />
       ))}
     </div>
   );

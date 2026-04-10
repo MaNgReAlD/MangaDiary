@@ -1,0 +1,45 @@
+.manga-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px auto;
+  padding: 16px;
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  max-width: 500px;
+}
+
+.manga-form input,
+.manga-form textarea,
+.manga-form select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  background: #fff;
+  font-family: inherit;
+}
+
+.manga-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.manga-form button {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 8px 16px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  background: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.manga-form button:hover {
+  background: #000;
+  color: #fff;
+}

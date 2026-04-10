@@ -1,11 +1,11 @@
 export interface Manga {
-  id: string;
+  id?: string;
   title: string;
   author: string;
+  finishedAt: string;
   rating: number;
   note?: string;
   imageUrl?: string;
-  finishedAt?: string;
 }
 
 export interface Comment {

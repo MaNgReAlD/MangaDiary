@@ -1,0 +1,49 @@
+/* Общие кнопки */
+button {
+  margin: 8px 5px; 
+  padding: 8px 16px; 
+  border: 2px solid #000;
+  border-radius: 4px;
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: #000;
+  color: #fff;
+}
+
+button.comment {
+  background: #f0f0f0;
+}
+
+button.comment:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* Модальные окна */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 500px;
+  width: 100%;
+}
